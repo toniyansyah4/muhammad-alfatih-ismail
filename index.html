@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undangan Walimatul Khitan - Muhammad Alfatih Ismail</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@400;600&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    
+    <!-- Tone.js for Audio -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #111;
+            color: #f8f9fa;
+            overflow-x: hidden;
+        }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-dancing { font-family: 'Dancing Script', cursive; }
+        
+        /* Full-screen section with background image */
+        .section-bg {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 1rem;
+            text-align: center;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed; /* Parallax effect */
+        }
+        .section-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(13, 71, 161, 0.7); /* Dark blue overlay */
+            z-index: 1;
+        }
+        .section-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        /* Specific background images for each section */
+        #hero { background-image: url('https://source.unsplash.com/1600x900/?mosque,night'); }
+        #profile { background-image: url('https://source.unsplash.com/1600x900/?islamic,pattern'); }
+        #details { background-image: url('https://source.unsplash.com/1600x900/?nature,calm'); }
+        #gallery { background-image: url('https://source.unsplash.com/1600x900/?abstract,gold'); }
+        #form-section { background-color: #f8f9fa; color: #333; min-height: auto; padding: 4rem 1rem; }
+
+        .btn-primary {
+            background-color: #c5a970;
+            color: #fff;
+            transition: background-color 0.3s, transform 0.3s;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #b89b60;
+            transform: translateY(-2px);
+        }
+        .countdown-box {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+        }
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 1s, transform 1s;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #opening-cover {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #0d47a1;
+            background-image: url('https://source.unsplash.com/1600x900/?mosque,night');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            display: flex; justify-content: center; align-items: center; text-align: center;
+            z-index: 100; transition: opacity 1.5s ease, transform 1.5s ease;
+        }
+        #music-control {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 50px; height: 50px; background-color: #c5a970; color: white;
+            border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; z-index: 50; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .loader {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-top: 4px solid #c5a970;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .form-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Halaman Pembuka / Cover -->
+    <div id="opening-cover">
+        <div class="section-content p-4">
+            <p class="mb-4">Undangan Walimatul Khitan</p>
+            <h2 class="font-playfair text-4xl md:text-6xl mb-8">Muhammad Alfatih Ismail</h2>
+            <p class="mb-2">Kepada Yth. Bapak/Ibu/Saudara/i:</p>
+            <h3 id="guest-name" class="text-2xl font-bold mb-8">[Nama Tamu]</h3>
+            <button id="open-invitation" class="btn-primary font-semibold py-3 px-8 rounded-full shadow-lg">
+                Buka Undangan
+            </button>
+        </div>
+    </div>
+    
+    <!-- Tombol Kontrol Musik -->
+    <div id="music-control" style="display: none;">
+        <svg id="music-icon-playing" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <svg id="music-icon-paused" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;"><line x1="10" y1="15" x2="10" y2="9"></line><line x1="14" y1="15" x2="14" y2="9"></line><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    </div>
+    
+    <main id="main-content" style="display: none;">
+        <!-- Hero Section -->
+        <section id="hero" class="section-bg">
+            <div class="section-content reveal">
+                <p class="tracking-widest uppercase text-sm mb-3 text-yellow-300 drop-shadow-lg">Walimatul Khitan</p>
+                <h1 class="font-dancing text-6xl md:text-8xl mb-4 text-white drop-shadow-2xl animate-pulse">Muhammad Alfatih Ismail</h1>
+                <p class="text-lg md:text-xl mb-2 text-white/90 font-playfair drop-shadow">Putra dari</p>
+                <p class="text-lg md:text-xl mb-6 text-yellow-200 font-semibold drop-shadow">Bapak Muhammad Ismail, SH, CPL &amp; Ibu Rescha Nur Octaviana</p>
+                <div class="flex flex-col items-center mt-6 mb-2">
+                    <div class="flex items-center gap-2 text-yellow-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <rect x="3" y="5" width="18" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
+                            <line x1="16" y1="3" x2="16" y2="7" stroke-width="2" stroke="currentColor"/>
+                            <line x1="8" y1="3" x2="8" y2="7" stroke-width="2" stroke="currentColor"/>
+                            <line x1="3" y1="11" x2="21" y2="11" stroke-width="2" stroke="currentColor"/>
+                        </svg>
+                        <span class="font-playfair text-xl md:text-2xl">Sabtu, 02 Agustus 2025</span>
+                    </div>
+                    <div class="flex items-center gap-2 mt-2 text-yellow-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <circle cx="12" cy="12" r="10" stroke-width="2" stroke="currentColor" fill="none"/>
+                            <path d="M12 6v6l4 2" stroke-width="2" stroke="currentColor" fill="none"/>
+                        </svg>
+                        <span class="font-playfair text-lg md:text-xl">09:00 WIB - Selesai</span>
+                    </div>
+                </div>
+                <div class="mt-8">
+                    <a href="#profile" class="inline-block animate-bounce bg-yellow-300 text-blue-900 font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-yellow-400 transition">Lihat Detail Acara</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="section-bg">
+            <div class="section-content reveal">
+                <p class="text-2xl font-playfair mb-4 animate-fade-in">Assalamu'alaikum Wr. Wb.</p>
+                <div class="flex flex-col items-center mb-6">
+                    <div class="relative"></div>
+                        <img src="img/1.jpg" alt="Foto Muhammad Alfatih Ismail" class="w-36 h-36 md:w-44 md:h-44 rounded-full mx-auto border-4 border-yellow-300 shadow-2xl object-cover ring-4 ring-white ring-offset-2 transition-transform duration-300 hover:scale-105">
+                        <!-- <span class="absolute -bottom-2 right-2 bg-yellow-300 text-blue-900 px-3 py-1 rounded-full text-xs font-bold shadow">Putra Kami</span> -->
+                    </div>
+                </div>
+                <p class="text-lg mb-4 leading-relaxed text-white">
+                    Maha Suci Allah yang telah menciptakan makhluk-Nya berpasang-pasangan. Dengan memohon rahmat dan ridho-Nya, kami mengundang Bapak/Ibu/Saudara/i untuk hadir dalam tasyakuran khitanan putra kami:
+                </p>
+                <h3 class="font-dancing text-5xl md:text-6xl text-yellow-300 drop-shadow mb-2 animate-pulse">Muhammad Alfatih Ismail</h3>
+                <p class="mt-2 italic text-yellow-200 font-playfair text-lg max-w-xl mx-auto">"Anak laki-laki yang menjadi pemimpin berhati lembut dengan penuh kebaikan."</p>
+            </div>
+        </section>
+
+        <!-- Details & Countdown Section -->
+        <section id="details" class="section-bg">
+            <div class="section-content reveal">
+                <h2 class="font-playfair text-4xl mb-8">Detail Acara</h2>
+                <div class="grid md:grid-cols-3 gap-8 mb-12">
+                    <div class="flex flex-col items-center">
+                        <!-- Icon Tanggal -->
+                        <div class="mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <rect x="3" y="5" width="18" height="16" rx="2" stroke-width="2" stroke="currentColor" fill="none"/>
+                                <line x1="16" y1="3" x2="16" y2="7" stroke-width="2" stroke="currentColor"/>
+                                <line x1="8" y1="3" x2="8" y2="7" stroke-width="2" stroke="currentColor"/>
+                                <line x1="3" y1="11" x2="21" y2="11" stroke-width="2" stroke="currentColor"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-xl text-yellow-300">Tanggal</h3>
+                        <p>Sabtu, 02 Agustus 2025</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <!-- Icon Waktu -->
+                        <div class="mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <circle cx="12" cy="12" r="10" stroke-width="2" stroke="currentColor" fill="none"/>
+                                <path d="M12 6v6l4 2" stroke-width="2" stroke="currentColor" fill="none"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-xl text-yellow-300">Waktu</h3>
+                        <p>09:00 WIB - Selesai</p>
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <!-- Icon Lokasi -->
+                        <div class="mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-yellow-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path d="M12 21s-6-5.686-6-10a6 6 0 1 1 12 0c0 4.314-6 10-6 10z" stroke-width="2" stroke="currentColor" fill="none"/>
+                                <circle cx="12" cy="11" r="2.5" stroke-width="2" stroke="currentColor" fill="none"/>
+                            </svg>
+                        </div>
+                        <h3 class="font-semibold text-xl text-yellow-300">Lokasi</h3>
+                        <p>Kp Gedong RT.04/01, Desa Cimanggu 2, Cibungbulang, Bogor</p>
+                    </div>
+                </div>
+                
+                <h3 class="font-playfair text-3xl mb-4">Menuju Hari Istimewa</h3>
+                <div id="countdown" class="flex justify-center gap-3 md:gap-6">
+                    <div class="countdown-box p-4 min-w-[80px]"><p id="days" class="text-4xl font-bold">00</p><p class="text-xs uppercase">Hari</p></div>
+                    <div class="countdown-box p-4 min-w-[80px]"><p id="hours" class="text-4xl font-bold">00</p><p class="text-xs uppercase">Jam</p></div>
+                    <div class="countdown-box p-4 min-w-[80px]"><p id="minutes" class="text-4xl font-bold">00</p><p class="text-xs uppercase">Menit</p></div>
+                    <div class="countdown-box p-4 min-w-[80px]"><p id="seconds" class="text-4xl font-bold">00</p><p class="text-xs uppercase">Detik</p></div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Gallery Section -->
+        <section id="gallery" class="section-bg">
+             <div class="section-content reveal">
+                 <h2 class="font-playfair text-4xl mb-8">Galeri Kenangan</h2>
+                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4 backdrop-blur-sm bg-white/10 p-4 rounded-lg">
+                    <img src="img/2.jpg" alt="Foto Anak 1" class="rounded-lg w-full h-full object-cover aspect-square transition-transform duration-300 hover:scale-105">
+                    <img src="img/3.jpg" alt="Foto Anak 2" class="rounded-lg w-full h-full object-cover aspect-square transition-transform duration-300 hover:scale-105">
+                    <img src="img/4.jpg" alt="Foto Keluarga" class="rounded-lg w-full h-full object-cover aspect-square transition-transform duration-300 hover:scale-105">
+                    <img src="img/5.jpg" alt="Foto Anak 3" class="rounded-lg w-full h-full object-cover aspect-square transition-transform duration-300 hover:scale-105">
+                    <img src="img/6.jpg" alt="Foto Ayah dan Anak" class="rounded-lg w-full h-full object-cover aspect-square transition-transform duration-300 hover:scale-105">
+                    <img src="img/1.jpg" alt="Foto Ibu dan Anak" class="rounded-lg w-full h-full object-cover aspect-square transition-transform duration-300 hover:scale-105">
+                </div>
+             </div>
+        </section>
+
+        <!-- Form & Map Section -->
+        <section id="form-section">
+            <div class="max-w-4xl mx-auto grid md:grid-cols-2 gap-12">
+                <!-- Map & Gift -->
+                <div class="reveal">
+                    <h2 class="font-playfair text-3xl mb-4">Peta Lokasi</h2>
+                    <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden border mb-8">
+                        <iframe src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d3963.572755778181!2d106.65685597499342!3d-6.575478893417952!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMzQnMzEuNyJTIDEwNsKwMzknMzQuMCJF!5e0!3m2!1sid!2sid!4v1753171422578!5m2!1sid!2sid" width="100%" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                    <h2 class="font-playfair text-3xl mb-4">Kirim Hadiah</h2>
+                    <p class="text-gray-600 mb-4">Doa restu Anda merupakan karunia yang sangat berarti. Namun jika memberi adalah ungkapan tanda kasih, Anda dapat memberi kado secara digital.</p>
+                    <div class="bg-gray-100 p-4 rounded-lg text-center">
+                        <div class="flex items-center justify-center mb-2">
+                            <img src="img/bca.png" alt="Logo BCA" class="h-10 mr-2">
+                        </div>
+                        <p class="text-lg font-semibold mb-1">Nomor Rekening BCA</p>
+                        <p class="text-sm text-gray-500">Atas Nama: muhammad ismail</p>
+                        <p id="accountNumber" class="text-lg">5540435920</p>
+                        <button id="copyButton" class="mt-2 text-sm text-blue-600 hover:underline">Salin Nomor Rekening</button>
+                    </div>
+                </div>
+
+                <!-- RSVP & Guestbook -->
+                <div class="reveal">
+                    <div class="form-card">
+                        <h2 class="font-playfair text-3xl text-center mb-4">Konfirmasi & Doa</h2>
+                        <!-- RSVP -->
+                        <form id="rsvpForm" class="mb-8">
+                            <h3 class="font-semibold text-lg mb-2">Konfirmasi Kehadiran</h3>
+                            <div class="mb-4">
+                                <label for="rsvpName" class="sr-only">Nama</label>
+                                <input type="text" id="rsvpName" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Nama Anda" required>
+                            </div>
+                            <div class="mb-4 flex gap-4">
+                                <label class="flex-1"><input type="radio" name="status" value="Hadir" class="mr-2" required> Hadir</label>
+                                <label class="flex-1"><input type="radio" name="status" value="Tidak Hadir" class="mr-2"> Tidak Hadir</label>
+                            </div>
+                            <button type="submit" class="w-full btn-primary font-semibold py-3 rounded-lg">Kirim Konfirmasi via WhatsApp</button>
+                            <div id="rsvp-confirmation" class="text-center text-green-700 font-semibold mt-2"></div>
+                        </form>
+                        <!-- Guestbook -->
+                        <form id="guestbookForm" class="space-y-4">
+                            <h3 class="font-semibold text-lg mb-2">Buku Tamu & Ucapan Doa</h3>
+                            <div class="mb-4">
+                                <label for="guestNameForm" class="sr-only">Nama Anda</label>
+                                <input type="text" id="guestNameForm" name="guestName" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Tulis nama Anda" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="guestMessage" class="sr-only">Ucapan & Doa</label>
+                                <textarea id="guestMessage" name="guestMessage" rows="4" class="w-full p-3 border border-gray-300 rounded-lg" placeholder="Tulis ucapan dan doa terbaik Anda" required></textarea>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-2">
+                                <button type="submit" class="w-full sm:w-auto flex-grow btn-primary font-semibold py-3 px-4 rounded-lg">Kirim Ucapan via WhatsApp</button>
+                        </form>
+                    </div>
+                    <!-- <div id="guestbookMessages" class="mt-8 space-y-4 max-h-96 overflow-y-auto p-4 bg-gray-100 rounded-lg">
+                        <p class="text-center text-gray-500">Jadilah yang pertama mengirim ucapan...</p>
+                    </div> -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer Section -->
+        <!-- Penutup / Footer Section -->
+        <section class="section-bg" style="background-image: url('https://source.unsplash.com/1600x900/?stars,night'); min-height: 60vh;">
+            <div class="section-content reveal flex flex-col items-center justify-center">
+            <p class="text-lg md:text-xl text-white/90 max-w-2xl mb-6">
+                Merupakan suatu kehormatan dan kebahagiaan bagi kami sekeluarga apabila Bapak/Ibu/Saudara/i berkenan hadir untuk memberikan doa restu pada acara ini.
+            </p>
+            <p class="font-dancing text-4xl md:text-5xl text-yellow-200 mb-8 animate-pulse drop-shadow-lg">
+                Wassalamu'alaikum Wr. Wb.
+            </p>
+            <div class="flex flex-col items-center gap-2">
+                <p class="font-playfair text-lg md:text-xl text-white/80">Hormat Kami,</p>
+                <p class="font-semibold text-xl md:text-2xl text-yellow-300 drop-shadow">
+                Keluarga Bapak Muhammad Ismail, SH, CPL<br>&amp; Ibu Rescha Nur Octaviana
+                </p>
+            </div>
+            <div class="mt-10 flex flex-col items-center">
+                <div class="w-24 h-1 bg-yellow-300 rounded-full mb-4"></div>
+                <span class="text-sm text-white/60">© 2025 <a href="https://www.instagram.com/toniyansyah4/">toniyansyah4</a></span>
+            </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+
+        document.getElementById('guestbookForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const guestName = document.getElementById('guestNameForm').value;
+            const guestMessage = document.getElementById('guestMessage').value;
+            try {
+                // WhatsApp redirect
+                const phone = "6285890890206";
+                const message = `Assalamu'alaikum, saya *${guestName}* ingin mengirim ucapan: "${guestMessage}" untuk acara Walimatul Khitan Muhammad Alfatih Ismail.`;
+                const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                window.open(waUrl, '_blank');
+            } catch (error) {
+            console.error("Error adding document: ", error);
+            }
+        });
+
+        document.getElementById('rsvpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const rsvpName = document.getElementById('rsvpName').value;
+            const status = e.target.status.value;
+            // Ganti ke WhatsApp
+            const phone = "6285890890206"; // Ganti dengan nomor WA tujuan tanpa +
+            const message = `Assalamu'alaikum, saya *${rsvpName}* ingin mengonfirmasi: *${status}* untuk acara Walimatul Khitan Muhammad Alfatih Ismail.`;
+            const waUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(waUrl, '_blank');
+            // Reset form dan tampilkan pesan konfirmasi
+            e.target.reset();
+            const confirmationDiv = document.getElementById('rsvp-confirmation');
+            confirmationDiv.textContent = 'Terima kasih atas konfirmasi Anda!';
+            setTimeout(() => confirmationDiv.textContent = '', 3000);
+        });
+
+    </script>
+    
+    <!-- UI & Gemini API Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const eventDate = new Date("2025-08-02T09:00:00").getTime();
+            const mainContent = document.getElementById('main-content');
+            const openingCover = document.getElementById('opening-cover');
+            const openButton = document.getElementById('open-invitation');
+            const musicControl = document.getElementById('music-control');
+            let isPlaying = false;
+            let player;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const guest = urlParams.get('to') || 'Bapak/Ibu/Saudara/i';
+            document.getElementById('guest-name').innerText = guest.replace(/_/g, " ");
+            document.getElementById('rsvpName').value = guest.replace(/_/g, " ");
+            document.getElementById('guestNameForm').value = guest.replace(/_/g, " ");
+
+            openButton.addEventListener('click', async () => {
+                openingCover.style.opacity = '0';
+                openingCover.style.transform = 'scale(1.2)';
+                
+                if (!player) {
+                    player = new Tone.Player("audio/1.mp3").toDestination();
+                    player.loop = true;
+                    player.autostart = true;
+                    await Tone.start();
+                }
+                
+                setTimeout(() => {
+                    openingCover.style.display = 'none';
+                    mainContent.style.display = 'block';
+                    musicControl.style.display = 'flex';
+                    isPlaying = true;
+                    document.body.style.overflowY = 'auto';
+                }, 1500);
+            });
+            
+            musicControl.addEventListener('click', () => {
+                if (isPlaying) {
+                    player.stop();
+                    document.getElementById('music-icon-playing').style.display = 'none';
+                    document.getElementById('music-icon-paused').style.display = 'block';
+                } else {
+                    player.start();
+                    document.getElementById('music-icon-playing').style.display = 'block';
+                    document.getElementById('music-icon-paused').style.display = 'none';
+                }
+                isPlaying = !isPlaying;
+            });
+
+            const countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = eventDate - now;
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById("countdown").innerHTML = "<p class='text-xl font-bold'>Acara Telah Berlangsung</p>";
+                    return;
+                }
+                document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24)).toString().padStart(2, '0');
+                document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)).toString().padStart(2, '0');
+                document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)).toString().padStart(2, '0');
+                document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000).toString().padStart(2, '0');
+            }, 1000);
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.2 });
+            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+            
+            document.getElementById('copyButton').addEventListener('click', (e) => {
+                const accountNumber = document.getElementById('accountNumber').innerText;
+                navigator.clipboard.writeText(accountNumber).then(() => {
+                    e.target.innerText = 'Berhasil Disalin!';
+                    setTimeout(() => e.target.innerText = 'Salin Nomor Rekening', 2000);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
